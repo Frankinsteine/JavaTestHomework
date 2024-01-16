@@ -1,26 +1,30 @@
 package org.example;
 
 import dev.failsafe.internal.util.Assert;
+import io.qameta.allure.Step;
+import jdk.jfr.Description;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 
 public class FirstTest {
-
-    final int defaultSleepTime = 1;
-
-    public void sleep(int time) {
-        try{
-            Thread.sleep(time * 1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private WebDriver driver;
+    private WebDriverWait wait;
 
     //parameters
     private static Stream<Arguments> foodDesc() {
@@ -30,14 +34,17 @@ public class FirstTest {
         );
     }
 
-
-    @ParameterizedTest
-    @MethodSource("foodDesc")
-    public void test(String foodName, String foodType, boolean foodExotic){
+    @BeforeEach
+    public void before() {
+        //for Windows
+        System.setProperty("webdriver.chromedriver.driver", "src/test/resources/chromedriver.exe");
+        //for Mac and Linux
+        //System.setProperty("webdriver.chromedriver.driver", "src/test/resources/chromedriver");
 
         //webdriver init
-        WebDriver driver = new ChromeDriver();
-        System.setProperty("webdriver.chromedriver.driver", "src/test/resources/chromedriver.exe");
+        driver = new ChromeDriver();
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         //browser option
         driver.manage().window().maximize();
@@ -45,43 +52,76 @@ public class FirstTest {
         //go to main page
         driver.get("http://localhost:8080/");
 
-        sleep(defaultSleepTime);
-        WebElement sandboxBtn = driver.findElement(By.xpath("//li[@class='nav-item dropdown']"));
-        Assert.isTrue(sandboxBtn.isDisplayed(), "Кнопка \"Песочница\" не появилась");
-        sandboxBtn.click();
-
-        sleep(defaultSleepTime);
-        WebElement foodBtn = driver.findElement(By.xpath("//a[@href='/food']"));
-        Assert.isTrue(foodBtn.isDisplayed(), "Кнопка \"Товары\" не появилась");
-        foodBtn.click();
+        //wait until page is loaded
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(1));
+        new WebDriverWait(driver, Duration.ofSeconds(3)).until(webDriver -> ((JavascriptExecutor) driver).
+                executeScript("return document.readyState").equals("complete"));
+    }
 
 
-        sleep(defaultSleepTime);
-        WebElement addFoodBtn = driver.findElement(By.xpath("//button[@data-target='#editModal']"));
-        Assert.isTrue(addFoodBtn.isDisplayed(), "Кнопка \"Добавить\" не появилась");
-        addFoodBtn.click();
+    @Description("Проверяем правильноть добавления товара в таблицу")
+    @DisplayName("Проверка добавления товара в таблицу")
+    @ParameterizedTest
+    @MethodSource("foodDesc")
+    public void test(String foodName, String foodType, boolean foodExotic) {
 
-        sleep(defaultSleepTime);
+        click(driver.findElement(By.xpath("//li[@class='nav-item dropdown']")),
+                "Кнопка \"Песочница\" не появилась");
+        click(driver.findElement(By.xpath("//a[@href='/food']")),
+                "Кнопка \"Товары\" не появилась");
+        click(driver.findElement(By.xpath("//button[@data-target='#editModal']")),
+                "Кнопка \"Добавить\" не появилась");
+
         //check if window add food is displayed
-        Assert.isTrue(driver.findElement(By.xpath("//h5[@class='modal-title']")).isDisplayed(),
-                "Окно добавления товара не появилось");
+        waitUntilVisible("//h5[@class='modal-title']");
+
+        //add new food
+        fillFoodFields(foodName, foodType, foodExotic);
+        //check if window add food is closed
+        waitUntilInvisible("//h5[@class='modal-title']");
+
+        //checking added food
+        checkAddedFood(foodName, foodType, foodExotic);
+    }
+
+    @AfterEach
+    public void after() {
+        driver.quit();
+    }
+
+    @Step("Клик по элементу")
+    public void click(WebElement element, String errMsg) {
+        Assert.isTrue(element.isDisplayed(), errMsg);
+        element.click();
+    }
+
+    @Step("Ожидание закрытия элемента")
+    public void waitUntilInvisible(String xpath) {
+        new WebDriverWait(driver, Duration.ofSeconds(3)).until(ExpectedConditions.invisibilityOfElementLocated(
+                By.xpath(xpath
+                )));
+    }
+
+    @Step("Ожидание появления элемента")
+    public void waitUntilVisible(String xpath) {
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+    }
+
+    @Step("Заполнение продукта {foodName} данными в окне добавления товара")
+    public void fillFoodFields(String foodName, String foodType, boolean foodExotic) {
         WebElement setFoodNameInput = driver.findElement(By.xpath("//input[@id='name']"));
         WebElement selectFoodType = driver.findElement(By.xpath("//select[@id='type']"));
         setFoodNameInput.sendKeys(foodName);
         selectFoodType.click();
-
-        sleep(defaultSleepTime);
         Assert.isTrue(driver.findElement(By.xpath("//option[@value='FRUIT']")).isDisplayed(),
                 "Кнопки выбора типа товара не появились");
-        if(Objects.equals(foodType, "Овощ")) {
+        if (Objects.equals(foodType, "Овощ")) {
             WebElement selectedFoodType = driver.findElement(By.xpath("//option[@value='VEGETABLE']"));
             selectedFoodType.click();
-        } else if(Objects.equals(foodType, "Фрукт")) {
+        } else if (Objects.equals(foodType, "Фрукт")) {
             WebElement selectedFoodType = driver.findElement(By.xpath("//option[@value='FRUIT']"));
             selectedFoodType.click();
         }
-
-
 
         //checking exotic checkbox
         WebElement exoticCheckbox = driver.findElement(By.xpath("//input[@id='exotic']"));
@@ -91,13 +131,13 @@ public class FirstTest {
         } else {
             Assert.isTrue(!exoticCheckbox.isSelected(), "Чекбокс экзотичности продукта включён");
         }
-        sleep(defaultSleepTime);
 
         WebElement addFoodInListBtn = driver.findElement(By.xpath("//button[@id='save']"));
         addFoodInListBtn.click();
+    }
 
-        sleep(defaultSleepTime);
-        //checking added food
+    @Step("Проверка добавленного продукта {foodName} в таблице")
+    public void checkAddedFood(String foodName, String foodType, boolean foodExotic) {
         WebElement addedFoodNumber = driver.findElement(By.xpath("//tbody/tr[5]/th"));
         WebElement addedFoodName = driver.findElement(By.xpath("//tbody/tr[5]/td[1]"));
         WebElement addedFoodType = driver.findElement(By.xpath("//tbody/tr[5]/td[2]"));
@@ -117,9 +157,5 @@ public class FirstTest {
             Assert.isTrue(Objects.equals(addedFoodExotic.getText(), "false"),
                     "Экзотичность продукта не верна");
         }
-
-        //small delay before quit driver
-        sleep(3);
-        driver.quit();
     }
 }

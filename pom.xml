@@ -53,20 +53,20 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-junit5 -->
+        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-junit5
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
             <version>2.24.0</version>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
 
-        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-cucumber7-jvm
+        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-cucumber7-jvm -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-cucumber7-jvm</artifactId>
             <version>2.24.0</version>
-        </dependency> -->
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->

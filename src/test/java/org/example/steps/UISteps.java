@@ -11,11 +11,18 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Objects;
 
 public class UISteps {
     private WebDriver driver;
     private WebDriverWait wait;
+    Map<String , String> xPaths = Map.of(
+            "Песочница", "//li[@class='nav-item dropdown']",
+            "Товары", "//a[@href='/food']",
+            "Добавить", "//button[@data-target='#editModal']"
+    );
+
 
     @И("запущен и настроен вебдрайвер")
     public void before() {
@@ -26,8 +33,8 @@ public class UISteps {
 
         //webdriver init
         driver = new ChromeDriver();
-
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
 
         //browser option
         driver.manage().window().maximize();
@@ -45,8 +52,8 @@ public class UISteps {
     }
 
     @И("нажать на кнопку {string}, при ошибке выдать {string}")
-    public void clickOnBtn(String xpath, String errMsg) {
-        WebElement element = driver.findElement(By.xpath(xpath));
+    public void clickOnBtn(String btnName, String errMsg) {
+        WebElement element = driver.findElement(By.xpath(xPaths.get(btnName)));
         Assert.isTrue(element.isDisplayed(), errMsg);
         element.click();
     }

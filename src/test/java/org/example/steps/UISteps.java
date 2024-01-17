@@ -51,10 +51,10 @@ public class UISteps {
                 executeScript("return document.readyState").equals("complete"));
     }
 
-    @И("нажать на кнопку {string}, при ошибке выдать {string}")
-    public void clickOnBtn(String btnName, String errMsg) {
+    @И("нажать на кнопку {string}")
+    public void clickOnBtn(String btnName) {
         WebElement element = driver.findElement(By.xpath(xPaths.get(btnName)));
-        Assert.isTrue(element.isDisplayed(), errMsg);
+        Assert.isTrue(element.isDisplayed(), "Кнопка %s не появилась", btnName);
         element.click();
     }
 

@@ -12,9 +12,12 @@ public class DatabaseSteps {
     @И("Запущен драйвер и создано соединение с БД")
     public void before() throws SQLException {
         DriverManager.registerDriver(new org.h2.Driver());
-        connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9092/mem:testdb",
+        connection = DriverManager.getConnection("jdbc:h2:tcp://149.154.71.152:9092/mem:testdb",
                 "user",
                 "pass");
+//        connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9092/mem:testdb",
+//                "user",
+//                "pass");
     }
 
     @И("Добавлен продукт с параметрами {string}, {string}, {int}")

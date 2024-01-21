@@ -15,6 +15,7 @@ public class DatabaseSteps {
         connection = DriverManager.getConnection("jdbc:h2:tcp://149.154.71.152:9092/mem:testdb",
                 "user",
                 "pass");
+
 //        connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9092/mem:testdb",
 //                "user",
 //                "pass");

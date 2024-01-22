@@ -99,7 +99,7 @@
                     <argLine>
                         -Xmx1024m
                         -Dfile.encoding=UTF-8
-                        -javaagent:"${settings.localRepository}\org\aspectj\aspectjweaver\1.9.20.1\aspectjweaver-1.9.20.1.jar"
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.20.1/aspectjweaver-1.9.20.1.jar"
                     </argLine>
                     <systemPropertyVariables>
                         <allure.results.directory>${project.build.directory}/reports/allure-results</allure.results.directory>

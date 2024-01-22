@@ -4,7 +4,7 @@ node('unix') {
             userRemoteConfigs: [[url: 'https://github.com/Frankinsteine/JavaTestHomework']])
     }
     stage('Run tests') {
-        withMaven(globalMavenSettingsConfig: '', jdk: '', maven: '', mavenSettingsConfig: '', traceability: true) {
+        withMaven(globalMavenSettingsConfig: '', jdk: '', maven: 'Default', mavenSettingsConfig: '', traceability: true) {
             sh 'mvn clean test -Dtype.browser=${browser} -Dgroups=${tag}'
         }
     }

@@ -1,7 +1,6 @@
-Для работы проекта сначала должен быть запущен стенд, 
-
-подробности запуска на https://ibs-training.ispringlearn.ru/content/info/34106/from/34001?vc_cik=10025887-bVbDF-RGrcZ-tkbd9&vc_lpid=34106
+Проект по умолчанию запускается на Selenoid, для запуска локально в application.properties нужно выставить 
+type.driver=local(например), файл находится по пути src/test/resources.
 
 База данных h2database, login: user; password: pass
 
-Браузер Google Chrome версия 120.0.6099.217 
+Браузер Google Chrome версия 120.0.6099.217 (если запускать локально)

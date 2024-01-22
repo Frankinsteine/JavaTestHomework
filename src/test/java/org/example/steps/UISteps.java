@@ -2,42 +2,66 @@ package org.example.steps;
 
 import dev.failsafe.internal.util.Assert;
 import io.cucumber.java.ru.И;
+import org.example.managers.TestPropManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.example.managers.TestPropManager.getTestPropManager;
+
 public class UISteps {
+    private final TestPropManager props = getTestPropManager();
     private WebDriver driver;
     private WebDriverWait wait;
     Map<String , String> xPaths = Map.of(
             "Песочница", "//li[@class='nav-item dropdown']",
             "Товары", "//a[@href='/food']",
-            "Добавить", "//button[@data-target='#editModal']"
+            "Добавить", "//button[@data-target='#editModal']",
+            "Сброс данных", "//a[@id='reset']"
     );
+
+    public UISteps() throws IOException {
+    }
 
 
     @И("запущен и настроен вебдрайвер")
-    public void before() {
+    public void before() throws MalformedURLException {
         //for Windows
         System.setProperty("webdriver.chromedriver.driver", "src/test/resources/chromedriver.exe");
         //for Mac and Linux
         //System.setProperty("webdriver.chromedriver.driver", "src/test/resources/chromedriver");
 
         //webdriver init
-        driver = new ChromeDriver();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-
-
-        //browser option
-        driver.manage().window().maximize();
+        if("remote".equalsIgnoreCase(props.getProperty("type.driver"))) {
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setCapability("browserName","chrome");
+            capabilities.setVersion("109.0");
+            capabilities.setCapability("selenoid:options", Map.of(
+                    "enableVNC", true,
+                    "enableVideo", false
+            ));
+            driver = new RemoteWebDriver(URI.create(props.getProperty("selenoid.url")).toURL(), capabilities);
+            wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            driver.manage().window().maximize();
+        } else {
+            driver = new ChromeDriver();
+            wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            //browser option
+            driver.manage().window().maximize();
+        }
     }
 
     @И("открыта страница по адресу {string}")

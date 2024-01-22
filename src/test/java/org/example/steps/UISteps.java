@@ -47,21 +47,20 @@ public class UISteps {
         //webdriver init
         if("remote".equalsIgnoreCase(props.getProperty("type.driver"))) {
             DesiredCapabilities capabilities = new DesiredCapabilities();
-            capabilities.setCapability("browserName","chrome");
+            capabilities.setBrowserName(props.getProperty("type.browser"));
             capabilities.setVersion("109.0");
             capabilities.setCapability("selenoid:options", Map.of(
                     "enableVNC", true,
                     "enableVideo", false
             ));
             driver = new RemoteWebDriver(URI.create(props.getProperty("selenoid.url")).toURL(), capabilities);
-            wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            driver.manage().window().maximize();
         } else {
             driver = new ChromeDriver();
-            wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            //browser option
-            driver.manage().window().maximize();
+            //browser options
+
         }
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        driver.manage().window().maximize();
     }
 
     @И("открыта страница по адресу {string}")
